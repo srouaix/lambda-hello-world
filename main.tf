@@ -1,8 +1,4 @@
-data "archive_file" "lambda_zip" {
-  type             = "zip"
-  source_file      = "index.js"
-  output_path      = "lambda_function.zip"
-}
+
 
 
 data "aws_vpc" "this" {
@@ -41,19 +37,18 @@ resource "aws_vpc_security_group_egress_rule" "aws_vpc_security_group_egress_rul
 }
 
 resource "aws_lambda_function" "test_lambda" {
-  filename         = "lambda_function.zip"
+  filename         = var.source_path_zip_file
+  source_code_hash = try(filebase64sha256(var.source_path_zip_file), false)
   function_name    = "test_lambda"
   role             = "${aws_iam_role.iam_for_lambda_tf.arn}"
   handler          = "index.handler"
-  source_code_hash = "${data.archive_file.lambda_zip.output_base64sha256}"
   runtime          = "nodejs18.x"
     
-vpc_config {
+  vpc_config {
     security_group_ids = [aws_security_group.aws_security_group_lambda.id]
     subnet_ids         = data.aws_subnets.this.ids
 
   }
-
 }
 
 resource "aws_iam_role" "iam_for_lambda_tf" {
