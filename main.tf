@@ -43,7 +43,7 @@ resource "aws_lambda_function" "test_lambda" {
   role             = "${aws_iam_role.iam_for_lambda_tf.arn}"
   handler          = "index.handler"
   runtime          = "nodejs18.x"
-    
+
   vpc_config {
     security_group_ids = [aws_security_group.aws_security_group_lambda.id]
     subnet_ids         = data.aws_subnets.this.ids
